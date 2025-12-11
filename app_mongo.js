@@ -429,7 +429,7 @@ const subscribe = (ws, message) => {
                     delete clients_publicaddress[ws.epicPublicAddress];
                 }
                 ws.epicPublicAddress = null;
-                ws.send(JSON.stringify({type: "Error", kind: "signature error", description: "Invalid signature."}));
+                ws.send(JSON.stringify({type: "Error", kind: "InvalidSignature", description: "Invalid signature."}));
             }
         });
 
@@ -493,14 +493,16 @@ const validatePostslate = (ws, message) => {
 
                     }else{
                         console.log("Error postslate signature", publickey);
-                        ws.send(JSON.stringify({type: "Error", kind: "postslate error", description: "Invalid signature."}));
+                        ws.send(JSON.stringify({type: "Error", kind: "InvalidRequest", description: "Error postslate signature."}));
                     }
 
                 });
 
             }else{
                 console.log("Error validate address format", message.from, message.to);
-                ws.send(JSON.stringify({type:"Error", kind:"postslate error", description: "Wrong address format."}));
+                
+                ws.send(JSON.stringify({type:"Error", kind:"InvalidRequest", description: `Wrong address format. From: ${message.from}, To: ${message.to}`}));
+            
             }
         });
 
@@ -540,7 +542,8 @@ const made = (ws, message) => {
 
                 });
             }else{
-                ws.send(JSON.stringify({type: "Error", kind: "made error", description: "Invalid signature."}));
+                
+                ws.send(JSON.stringify({type:"Error", kind:"InvalidSignature", description: `Invalid signature.`}));
             }
         });
     }
@@ -650,7 +653,7 @@ const postSlate = (ws, json) => {
 
             }catch(err){
                 console.error("Error forward slate to foreign epicbox", err);
-                ws.send(JSON.stringify({type: "Error", kind: "foreign epicbox", description:"Error send Slate to foreign epicbox"}));
+                ws.send(JSON.stringify({type: "Error", kind: "InvalidRequest", description: `Error forward slate to foreign epicbox. ToDomain: ${addressto.domain}:${addressto.port}, err: ${err}`}));
             }
 
         });
