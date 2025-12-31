@@ -103,3 +103,19 @@ NGINX_PORT=8888
 
 - MongoDB, nginx, and epicbox instances are all managed via `docker-compose.yml`.
 - For custom setups, edit `docker-compose.yml` and `default_config.json` as needed.
+
+## Docker Compose Build Instructions
+
+**IMPORTANT:** Before building with Docker Compose, you must initialize all git submodules:
+
+```
+git submodule update --init --recursive
+```
+
+This will fetch the epic-wallet and all required submodules. If you skip this step, the Docker build will fail due to missing dependencies.
+
+Then build and run as usual:
+
+```
+docker compose up -d --build
+```

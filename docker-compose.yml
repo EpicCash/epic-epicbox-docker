@@ -5,8 +5,7 @@ services:
     image: mongo:6.0
     container_name: mongodb
     restart: always
-    ports:
-      - "27017:27017"
+    # ports section removed; not needed for internal Docker Compose networking
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=rootpass
@@ -30,6 +29,9 @@ services:
       - mongodb
     ports:
       - "8888:3423"
+    entrypoint: ["/bin/sh", "-c", "../wait-for-mongo.sh mongodb epicbox epicboxpass epicbox && exec npm start"]
+    volumes:
+      - ./wait-for-mongo.sh:/wait-for-mongo.sh:ro
 
   epicbox2:
     build:
@@ -46,6 +48,9 @@ services:
       - mongodb
     ports:
       - "8889:3423"
+    entrypoint: ["/bin/sh", "-c", "../wait-for-mongo.sh mongodb epicbox epicboxpass epicbox && exec npm start"]
+    volumes:
+      - ./wait-for-mongo.sh:/wait-for-mongo.sh:ro
 
   nginx:
     image: nginx:alpine
