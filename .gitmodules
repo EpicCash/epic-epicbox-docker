@@ -1,0 +1,3 @@
+[submodule "epicboxlib_source/epic-wallet"]
+	path = epicboxlib_source/epic-wallet
+	url = https://github.com/EpicCash/epic-wallet.git
