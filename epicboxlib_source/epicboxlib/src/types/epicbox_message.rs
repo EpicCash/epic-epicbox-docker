@@ -1,4 +1,4 @@
-use rand::{Rng, thread_rng};
+use rand::random;
 use ring::{aead, pbkdf2};
 use std::num::NonZeroU32;
 
@@ -31,8 +31,8 @@ impl EpicboxMessage {
 	let common_secret_ser = common_secret.serialize_vec(&secp, true);
 	let common_secret_slice = &common_secret_ser[1..33];
 
-	let salt: [u8; 8] = thread_rng().gen();
-	let nonce: [u8; 12] = thread_rng().gen();
+	let salt: [u8; 8] = random();
+	let nonce: [u8; 12] = random();
 	let mut key = [0; 32];
 
 	pbkdf2::derive(

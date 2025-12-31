@@ -1,0 +1,22 @@
+[package]
+name = "epicboxlib"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.grin_secp256k1zkp]
+git = "https://github.com/EpicCash/rust-secp256k1-zkp"
+branch = "master"
+#path = "../../rust-secp256k1-zkp"
+version = "0.8.0"
+features = ["bullet-proof-sizing"]
+
+[dependencies]
+epicboxlib = { path = "./epicboxlib" }
+
+# Add this if missing:
+[[bin]]
+name = "epicboxlib"
+path = "src/main.rs"
+
