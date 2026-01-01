@@ -571,7 +571,10 @@ const postSlate = (ws, json) => {
     addressto.domain = str.destination.domain;
     addressto.port = str.destination.port != null ? str.destination.port : 443;
 
-    if(addressto.domain === config.epicbox_domain && addressto.port === config.epicbox_port){
+    if (
+            addressto.domain === config.epicbox_domain &&
+            String(addressto.port) === String(config.epicbox_port)
+    ) {
 
         //challenge is not required, we keep it for backward compatibility
         let signed_payload = JSON.stringify({str: json.str, challenge: "", signature: json.signature});
