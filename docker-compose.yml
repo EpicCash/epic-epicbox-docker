@@ -1,0 +1,63 @@
+# Use the official MongoDB image
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
+    # ports section removed; not needed for internal Docker Compose networking
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=rootpass
+      - MONGO_INITDB_DATABASE=epicbox
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  epicbox1:
+    build:
+      context: .
+      dockerfile: epicbox/Dockerfile
+    container_name: epicbox1
+    restart: always
+    environment:
+      - MONGO_URL=mongodb://epicbox:epicboxpass@mongodb:27017/epicbox?authSource=epicbox
+      - EPICBOX_INSTANCE_ID=1
+      - EPICBOX_DOMAIN=${EPICBOX_DOMAIN:-epicbox.your-domain.com}
+      - EPICBOX_PORT=${EPICBOX_PORT:-443}
+    depends_on:
+      - mongodb
+    ports:
+      - "8888:3423"
+    
+  epicbox2:
+    build:
+      context: .
+      dockerfile: epicbox/Dockerfile
+    container_name: epicbox2
+    restart: always
+    environment:
+      - MONGO_URL=mongodb://epicbox:epicboxpass@mongodb:27017/epicbox?authSource=epicbox
+      - EPICBOX_INSTANCE_ID=2
+      - EPICBOX_DOMAIN=${EPICBOX_DOMAIN:-epicbox.your-domain.com}
+      - EPICBOX_PORT=${EPICBOX_PORT:-443}
+    depends_on:
+      - mongodb
+    ports:
+      - "8889:3423"
+      
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: always
+    ports:
+      - "8443:443"
+    entrypoint: ["/bin/sh", "-c", "envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+    depends_on:
+      - epicbox1
+      - epicbox2
+
+volumes:
+  mongo_data:

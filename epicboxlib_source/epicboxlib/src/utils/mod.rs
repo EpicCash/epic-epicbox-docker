@@ -1,7 +1,11 @@
+
+/// Temporary stub for network selection. Returns true for mainnet.
+pub fn is_mainnet() -> bool {
+    true // Change as needed for your environment
+}
 use std::fmt::Write;
 use crate::error::{Error, ResultSingle};
 
-pub use epic_core::global::is_mainnet;
 
 pub mod base58;
 pub mod crypto;

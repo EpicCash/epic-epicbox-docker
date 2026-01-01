@@ -1,0 +1,23 @@
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    upstream epicbox_backend {
+        server epicbox1:3423 max_fails=3 fail_timeout=10s;
+        server epicbox2:3423 max_fails=3 fail_timeout=10s;
+    }
+
+    server {
+        listen 80;
+        server_name _;
+        return 301 https://$host$request_uri;
+    }
+
+}

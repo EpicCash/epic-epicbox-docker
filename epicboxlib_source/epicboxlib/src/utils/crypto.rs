@@ -114,8 +114,8 @@ pub fn public_key_from_secret_key(secret_key: &SecretKey) -> ResultSingle<Public
 
 pub fn sign_challenge(challenge: &str, secret_key: &SecretKey) -> ResultSingle<Signature> {
     let mut hasher = Sha256::new();
-    hasher.input(challenge.as_bytes());
-    let message = Message::from_slice(hasher.result().as_slice())?;
+    hasher.update(challenge.as_bytes());
+    let message = Message::from_slice(hasher.finalize_reset().as_slice())?;
     let secp = Secp256k1::new();
     secp.sign(&message, secret_key)
         .map_err(|e| Error::SecpError(e))
@@ -127,8 +127,8 @@ pub fn verify_signature(
     public_key: &PublicKey,
 ) -> ResultSingle<()> {
     let mut hasher = Sha256::new();
-    hasher.input(challenge.as_bytes());
-    let message = Message::from_slice(hasher.result().as_slice())?;
+    hasher.update(challenge.as_bytes());
+    let message = Message::from_slice(hasher.finalize().as_slice())?;
     let secp = Secp256k1::new();
     secp.verify(&message, signature, public_key)
         .map_err(|e| Error::SecpError(e))
