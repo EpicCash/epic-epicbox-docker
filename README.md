@@ -2,10 +2,10 @@
 
 To expose your Epicbox Docker service securely on your own domain, use a simple nginx reverse proxy. This allows you to use SSL and a custom domain name.
 
-### 1. Start Epicbox Docker with Custom Domain and Port
+### 1. Start Epicbox Docker with Custom Domain
 
 ```sh
-EPICBOX_DOMAIN=your-epicbox-domain.example NGINX_PORT=8888 docker compose up -d --build
+EPICBOX_DOMAIN=your-epicbox-domain.example docker compose up -d --build
 ```
 
 ### 2. Example nginx Reverse Proxy Configuration
@@ -13,6 +13,11 @@ EPICBOX_DOMAIN=your-epicbox-domain.example NGINX_PORT=8888 docker compose up -d 
 Place this in your nginx config (e.g., `/etc/nginx/sites-available/epicbox.conf`):
 
 ```
+upstream epicbox_backend {
+  ip_hash;
+  server 127.0.0.1:8888 max_fails=3 fail_timeout=10s;
+  server 127.0.0.1:8889 max_fails=3 fail_timeout=10s;
+}
 server {
 	server_name your-epicbox-domain.example www.your-epicbox-domain.example;
 
@@ -25,7 +30,7 @@ server {
 		proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header        X-Forwarded-Proto $scheme;
 
-		proxy_pass http://YOUR_SERVER_IP:8888;
+		proxy_pass http://epicbox_backend;
 		proxy_read_timeout  90;
 
 		# WebSocket support
@@ -46,7 +51,6 @@ server {
 ```
 
 - Replace `your-epicbox-domain.example` with your actual domain.
-- Replace `YOUR_SERVER_IP` with your server’s public IP or Docker host IP.
 - Adjust SSL certificate paths as needed.
 
 ### 3. Reload nginx
@@ -62,10 +66,11 @@ Epicbox Relay Server for Epic Cash, built with Node.js and Rust.
 
 ## Docker Quick Start
 
-1. **Clone the repository and navigate to the project folder:**
+1. **Clone the repository and initialize submodules:**
 	```sh
 	git clone <repo-url>
 	cd epicboxnodejs-source
+	git submodule update --init --recursive
 	```
 
 2. **Build and start all services with Docker Compose:**
@@ -76,14 +81,14 @@ Epicbox Relay Server for Epic Cash, built with Node.js and Rust.
 3. **Custom configuration via environment variables:**
 	You can override key settings at runtime:
 	```sh
-	EPICBOX_DOMAIN=my.domain.com NGINX_PORT=8888 docker compose up -d --build
+	EPICBOX_DOMAIN=my.domain.com docker compose up -d --build
 	```
 	- `EPICBOX_DOMAIN`: Sets the domain for epicbox services (default: epicbox.your-domain.com)
 	- `EPICBOX_PORT`: Sets the port for epicbox services (default: 443)
-	- `NGINX_PORT`: Sets the external port for nginx (default: 8080)
+	- `NGINX_PORT`: Sets the external port for nginx (default: 8443)
 
 4. **Access the service:**
-	- Open `http://localhost:8080` (or your chosen NGINX_PORT) in your browser.
+	- Open `http://localhost:8443` (or your chosen NGINX_PORT) in your browser.
 
 5. **Scaling and failover:**
 	- Two epicbox instances are started by default (epicbox1 and epicbox2).
@@ -96,26 +101,9 @@ All major settings can be configured via environment variables or a `.env` file:
 ```
 EPICBOX_DOMAIN=my.domain.com
 EPICBOX_PORT=443
-NGINX_PORT=8888
 ```
 
 ## Advanced
 
 - MongoDB, nginx, and epicbox instances are all managed via `docker-compose.yml`.
 - For custom setups, edit `docker-compose.yml` and `default_config.json` as needed.
-
-## Docker Compose Build Instructions
-
-**IMPORTANT:** Before building with Docker Compose, you must initialize all git submodules:
-
-```
-git submodule update --init --recursive
-```
-
-This will fetch the epic-wallet and all required submodules. If you skip this step, the Docker build will fail due to missing dependencies.
-
-Then build and run as usual:
-
-```
-docker compose up -d --build
-```

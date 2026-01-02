@@ -10,6 +10,7 @@ events {
 
 http {
     upstream epicbox_backend {
+        ip_hash;
         server epicbox1:3423 max_fails=3 fail_timeout=10s;
         server epicbox2:3423 max_fails=3 fail_timeout=10s;
     }
